@@ -3,32 +3,55 @@
 using namespace std;
 using namespace mssm;
 
-int main()
-{
-    Graphics g("Hello Graphics!", 1024, 768);
+class Button {
+public:
+    int width;
+    int height;
+    Vec2d pos;
 
-    int x = 0;
+    bool mouseOverButton(Vec2d mp) {
+        if (pos.x < mp.x && mp.x < pos.x + width &&
+            pos.y < mp.y && mp.y < pos.y + height) {
+            return true;
+        }
+        return false;
+    }
+
+    bool clicked(Graphics& g, Vec2d mp) {
+        if (mouseOverButton(mp) && g.isMousePressed(MouseButton::Left)) {
+            return true;
+        }
+        return false;
+    }
+
+    void draw(Graphics& g, Vec2d mp) {
+        Color fillColor;
+        if (mouseOverButton(mp)) {
+            fillColor = RED;
+        } else {
+            fillColor = GREEN;
+        }
+        g.rect(pos, width, height, fillColor, fillColor);
+    }
+};
+
+int main() {
+    Graphics g("Button of DOOM!!!", 1024, 768);
+
+    Button button;
+    button.width = 300;
+    button.height = 150;
+    button.pos = {g.width()/2 - button.width/2, g.height()/2 - button.height/2};
 
     while (g.draw()) {
-        if (!g.isDrawable()) {
-            continue;
-        }
+        Vec2d mp = g.mousePos();
 
-        g.line({100,200}, {300,400}, GREEN);
+        button.draw(g, mp);
 
-        g.ellipse({500,500}, 20, 30, YELLOW, PURPLE);
-
-        g.text({20,40}, 20, format("HELLO!!! {}", x), GREEN);
-
-        g.rect({600,600}, 150, 50, RED, YELLOW);
-
-        if (g.onKeyPress(Key::Space)) {
-            g.printError("Space!!!");
-            x++;
+        if (button.clicked(g, mp)) {
+            break;
         }
     }
 
     return 0;
 }
-
-
